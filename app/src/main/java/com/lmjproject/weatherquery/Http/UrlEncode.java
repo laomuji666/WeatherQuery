@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 
 //编码类
 public class UrlEncode {
+    //将文本转化为utf8
     public static String toUtf8(String str){
         //%E8%B0%B7%E5%9F%8E
         String req = null;
