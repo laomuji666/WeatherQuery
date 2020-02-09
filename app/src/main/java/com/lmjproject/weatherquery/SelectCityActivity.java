@@ -6,10 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import com.lmjproject.weatherquery.Http.Http;
 
@@ -17,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SelectCityActivity extends AppCompatActivity {
-    public static final String CITY="city",CITY_NAME="city_name",CITY_DATA="city_data";
+    public static final String CITY="city",CITY_NAME="city_name",PROVICE_NAME="province_name",CITY_DATA="city_data";
+    private boolean isTextChanged = false,isUiOk=false;
     private EditText editText;
     private RecyclerView recyclerView;
     private SelectCityAdapter adapter;
@@ -30,6 +36,8 @@ public class SelectCityActivity extends AppCompatActivity {
         initWidget();
         setToolbar();
     }
+
+
     //绑定控件及事件
     private void initWidget(){
         editText=findViewById(R.id.select_city_EditText);
@@ -37,44 +45,51 @@ public class SelectCityActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter=new SelectCityAdapter(cityList,this);
         recyclerView.setAdapter(adapter);
-        editText.addTextChangedListener(new TextWatcher() {
+        isTextChanged=true;
+        // editText.addTextChangedListener //暂时不用了 因为http请求返回时间的问题
+        new Thread(new Runnable() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                final String autoStr = s.toString();
-                //文本改变时 向服务器查询
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String city = Http.getCity(autoStr);
-                        //转换城市列表的格式 并放入list
-                        String[] split = city.split("\n");
-                        if (split.length==0){
-                            return;
+            public void run() {
+                while (isTextChanged){
+                    textChanged();
+                    isUiOk=false;
+                    SelectCityActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            isUiOk=true;
                         }
-                        cityList.clear();
-                        for (String s:split){
-                            cityList.add(s);
-                        }
-                        SelectCityActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
+                    });
+                    while (isUiOk==false){ }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                }).start();
+                }
             }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //文本改变前
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                //文本改变后
-            }
-        });
+        }).start();
     }
-
+    //输入文本改变事件
+    private void textChanged(){
+        String autoStr=editText.getText().toString();
+        if (autoStr==null){
+            return;
+        }
+        String city = Http.getCity(autoStr);
+        if(city==null){
+            return;
+        }
+        //转换城市列表的格式 并放入list
+        String[] split = city.split("\n");
+        if (split==null){
+            return;
+        }
+        cityList.clear();
+        for (String s:split){
+            cityList.add(s);
+        }
+    }
     //设置toolbar
     private void setToolbar(){
         toolbar=findViewById(R.id.select_city_Toolbar);
@@ -94,5 +109,12 @@ public class SelectCityActivity extends AppCompatActivity {
 
         }
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isTextChanged=false;
+        isUiOk=true;
     }
 }

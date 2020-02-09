@@ -11,7 +11,7 @@
         android:layout_height="?attr/actionBarSize"/>
     <EditText
         android:id="@+id/select_city_EditText"
-        android:hint="输入需要查询的地点(如:北京或beijing或100000等)"
+        android:hint="输入需要查询的地点"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <androidx.recyclerview.widget.RecyclerView

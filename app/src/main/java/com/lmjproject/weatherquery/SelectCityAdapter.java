@@ -3,6 +3,8 @@ package com.lmjproject.weatherquery;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +22,7 @@ public class SelectCityAdapter extends RecyclerView.Adapter<SelectCityAdapter.Ho
     public class Holder extends RecyclerView.ViewHolder{
         public TextView baseId,city,postcode,province,pinyin;
         public LinearLayout layout;
-        public int position;
+        public String text;
         public Holder(@NonNull View itemView) {
             super(itemView);
             baseId=itemView.findViewById(R.id.select_city_item_baseId);
@@ -30,8 +32,9 @@ public class SelectCityAdapter extends RecyclerView.Adapter<SelectCityAdapter.Ho
             pinyin=itemView.findViewById(R.id.select_city_item_pinyin);
             layout=itemView.findViewById(R.id.select_city_item_layout);
         }
-        public void setItemText(String text,int pos){
+        public void setItemText(String text){
             //57494|武汉|430000|湖北省|wuhan|AHB
+            this.text=text;
             String[] split = text.split("\\|");
             if (split.length!=6){
                 //如果传过来的格式不正确
@@ -42,9 +45,9 @@ public class SelectCityAdapter extends RecyclerView.Adapter<SelectCityAdapter.Ho
             postcode.setText(split[2]);
             province.setText(split[3]);
             pinyin.setText(split[4]);
-            position=pos;
         }
     }
+
     private List<String>mList;
     private Activity mActivity;
     SharedPreferences.Editor editor;
@@ -62,13 +65,13 @@ public class SelectCityAdapter extends RecyclerView.Adapter<SelectCityAdapter.Ho
 
     @Override
     public void onBindViewHolder(@NonNull final Holder holder, int position) {
-        final String str=mList.get(position);
-        holder.setItemText(str,position);
+        holder.setItemText(mList.get(position));
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putString(SelectCityActivity.CITY_DATA,str);
+                editor.putString(SelectCityActivity.CITY_DATA,holder.text);
                 editor.putString(SelectCityActivity.CITY_NAME,holder.city.getText().toString());
+                editor.putString(SelectCityActivity.PROVICE_NAME,holder.province.getText().toString());
                 editor.apply();
                 mActivity.finish();
             }

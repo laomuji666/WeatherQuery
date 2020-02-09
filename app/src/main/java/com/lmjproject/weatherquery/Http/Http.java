@@ -1,5 +1,7 @@
 package com.lmjproject.weatherquery.Http;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +59,7 @@ public class Http {
     }
 
     //使用OkHttp发送get请求
-    private static String sendGet(String url){
+    public static String sendGet(String url){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(url).build();
         Response response=null;
