@@ -9,16 +9,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.IBinder;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,7 +32,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private final int SELECT_CITY = 0;
     private Toolbar toolbar;
-    private String cityData="54511|北京|100000|北京市|beijing|ABJ",cityName="北京",provinceName="北京市";
+    private String cityData,cityName,provinceName;
     private SharedPreferences shared;
     private androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipeRef;
     private TextView today_celsius,today_weather,today_weekday,today_direction,today_wind;//摄氏度,天气,星期几,方向,大小
@@ -39,11 +40,25 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView weekWeatherRecView;
     private WeekWeatherAdapter adapter;
     private List<String>mList;
+    private WeatherService.WeatherServiceBinder weatherBinder;
+    private ServiceConnection connection=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            weatherBinder=(WeatherService.WeatherServiceBinder)service;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fitsSystemWindows();
         setContentView(R.layout.activity_main);
+        Intent it=new Intent(this,WeatherService.class);
+        bindService(it,connection,BIND_AUTO_CREATE);
         initWidget();
         selectCity();
     }
@@ -103,15 +118,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 List<String> weekWeather = Http.getWeekWeather(cityData);
-                if (weekWeather==null){
+                if (weekWeather==null ||weekWeather.size()!=7){
                     return;
                 }
-                if (weekWeather.size()==7){
-                    mList.clear();
-                    for (String s:weekWeather){
-                        Log.d("onBindViewHolder", s);
-                        mList.add(s);
-                    }
+                mList.clear();
+                for (String s:weekWeather){
+                    mList.add(s);
                 }
                 final String[] todaySplit = weekWeather.get(0).split("\\|");
                 if (todaySplit.length!=7){
@@ -126,11 +138,12 @@ public class MainActivity extends AppCompatActivity {
                         today_direction.setText(todaySplit[5]);//方向
                         today_celsius.setText(todaySplit[4]);//摄氏度
                         today_weather.setText(todaySplit[3]);//天气
-                        today_weekday.setText(todaySplit[0]+" "+todaySplit[1]);//星期几
+                        today_weekday.setText(todaySplit[1]);//星期几
                         Glide.with(MainActivity.this).load(imageUrl).into(today_imageView);//图片
                         adapter.notifyDataSetChanged();
                     }
                 });
+                weatherBinder.updateWeather();
             }
         }).start();
     }
@@ -169,7 +182,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-
 
 }

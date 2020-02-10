@@ -41,6 +41,9 @@ public class Http {
         final String ssBegin="\">\n";
         final String ssEnd="</div> ";
         String string=sendGet(url);
+        if (string==null){
+            return null;
+        }
         List<String>weatherList=new ArrayList<>();
         int iBegin=-1,iEnd=-1;
         int iiBegin=-1,iiEnd=-1;

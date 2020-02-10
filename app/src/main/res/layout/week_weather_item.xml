@@ -2,13 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="60dp">
+    android:layout_height="60dp"
+    android:background="#000"
+    android:alpha="0.6">
     <ImageView android:id="@+id/week_weather_item_image"
         android:layout_width="60dp"
         android:layout_height="match_parent"/>
     <TextView android:id="@+id/week_weather_item_text"
         android:textColor="#fff"
-        android:textSize="20dp"
+        android:textSize="15dp"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

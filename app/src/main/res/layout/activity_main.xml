@@ -40,11 +40,11 @@
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="80dp"
                     android:gravity="center">
                     <ImageView android:id="@+id/main_today_image"
                         android:layout_width="80dp"
-                        android:layout_height="80dp"/>
+                        android:layout_height="match_parent"/>
                     <TextView android:id="@+id/main_today_weather"
                         android:textColor="#fff"
                         android:textSize="25sp"
@@ -86,7 +86,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/main_weekWeather_recyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

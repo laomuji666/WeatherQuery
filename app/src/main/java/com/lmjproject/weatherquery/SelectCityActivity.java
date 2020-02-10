@@ -73,7 +73,7 @@ public class SelectCityActivity extends AppCompatActivity {
     //输入文本改变事件
     private void textChanged(){
         String autoStr=editText.getText().toString();
-        if (autoStr==null){
+        if (autoStr==null||autoStr.equals("")==true){
             return;
         }
         String city = Http.getCity(autoStr);
